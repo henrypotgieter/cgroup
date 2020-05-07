@@ -16,30 +16,55 @@ cpusetvals () {
         mount -t cgroup -ocpuset cpuset /sys/fs/cgroup/cpuset
     fi
     # Create all the groups with the $CURRENT_USER able to write the tasks file
-    cgcreate -a root -t $CURRENT_USER -g cpuset:not_cpu_234567
-    cgcreate -a root -t $CURRENT_USER -g cpuset:not_cpu_4567
-    cgcreate -a root -t $CURRENT_USER -g cpuset:not_cpu_67
-    cgcreate -a root -t $CURRENT_USER -g cpuset:cpu_234567
-    cgcreate -a root -t $CURRENT_USER -g cpuset:cpu_4567
-    cgcreate -a root -t $CURRENT_USER -g cpuset:cpu_45
-    cgcreate -a root -t $CURRENT_USER -g cpuset:cpu_67
+    cgcreate -a $CURRENT_USER -t $CURRENT_USER -g cpuset:cpu_01
+    cgcreate -a $CURRENT_USER -t $CURRENT_USER -g cpuset:cpu_0123
+    cgcreate -a $CURRENT_USER -t $CURRENT_USER -g cpuset:cpu_012345
+    cgcreate -a $CURRENT_USER -t $CURRENT_USER -g cpuset:cpu_234567
+    cgcreate -a $CURRENT_USER -t $CURRENT_USER -g cpuset:cpu_4567
+    cgcreate -a $CURRENT_USER -t $CURRENT_USER -g cpuset:cpu_45
+    cgcreate -a $CURRENT_USER -t $CURRENT_USER -g cpuset:cpu_67
+    cgcreate -a $CURRENT_USER -t $CURRENT_USER -g cpuset,memory:cpu_45_4G
+    cgcreate -a $CURRENT_USER -t $CURRENT_USER -g cpuset,memory:cpu_45_6G
+    cgcreate -a $CURRENT_USER -t $CURRENT_USER -g cpuset,memory:cpu_45_8G
+    cgcreate -a $CURRENT_USER -t $CURRENT_USER -g cpuset,memory:cpu_67_4G
+    cgcreate -a $CURRENT_USER -t $CURRENT_USER -g cpuset,memory:cpu_67_6G
+    cgcreate -a $CURRENT_USER -t $CURRENT_USER -g cpuset,memory:cpu_67_8G
     # Populate the cpuset.cpus files with the appropriate contents
     echo "6-7" > /sys/fs/cgroup/cpuset/cpu_67/cpuset.cpus
-    echo "0-1" > /sys/fs/cgroup/cpuset/not_cpu_234567/cpuset.cpus
-    echo "0-3" > /sys/fs/cgroup/cpuset/not_cpu_4567/cpuset.cpus
-    echo "0-5" > /sys/fs/cgroup/cpuset/not_cpu_67/cpuset.cpus
+    echo "0-1" > /sys/fs/cgroup/cpuset/cpu_01/cpuset.cpus
+    echo "0-3" > /sys/fs/cgroup/cpuset/cpu_0123/cpuset.cpus
+    echo "0-5" > /sys/fs/cgroup/cpuset/cpu_012345/cpuset.cpus
     echo "2-7" > /sys/fs/cgroup/cpuset/cpu_234567/cpuset.cpus
     echo "4-7" > /sys/fs/cgroup/cpuset/cpu_4567/cpuset.cpus
     echo "4-5" > /sys/fs/cgroup/cpuset/cpu_45/cpuset.cpus
     echo "6-7" > /sys/fs/cgroup/cpuset/cpu_67/cpuset.cpus
+    echo "4-5" > /sys/fs/cgroup/cpuset/cpu_45_4G/cpuset.cpus
+    echo "4-5" > /sys/fs/cgroup/cpuset/cpu_45_6G/cpuset.cpus
+    echo "4-5" > /sys/fs/cgroup/cpuset/cpu_45_8G/cpuset.cpus
+    echo "6-7" > /sys/fs/cgroup/cpuset/cpu_67_4G/cpuset.cpus
+    echo "6-7" > /sys/fs/cgroup/cpuset/cpu_67_6G/cpuset.cpus
+    echo "6-7" > /sys/fs/cgroup/cpuset/cpu_67_8G/cpuset.cpus
     # Populate the cpuset.mems files with the appropriate contents
-    echo "0" > /sys/fs/cgroup/cpuset/not_cpu_234567/cpuset.mems
-    echo "0" > /sys/fs/cgroup/cpuset/not_cpu_4567/cpuset.mems
-    echo "0" > /sys/fs/cgroup/cpuset/not_cpu_67/cpuset.mems
+    echo "0" > /sys/fs/cgroup/cpuset/cpu_01/cpuset.mems
+    echo "0" > /sys/fs/cgroup/cpuset/cpu_0123/cpuset.mems
+    echo "0" > /sys/fs/cgroup/cpuset/cpu_012345/cpuset.mems
     echo "0" > /sys/fs/cgroup/cpuset/cpu_234567/cpuset.mems
     echo "0" > /sys/fs/cgroup/cpuset/cpu_4567/cpuset.mems
     echo "0" > /sys/fs/cgroup/cpuset/cpu_45/cpuset.mems
     echo "0" > /sys/fs/cgroup/cpuset/cpu_67/cpuset.mems
+    echo "0" > /sys/fs/cgroup/cpuset/cpu_45_4G/cpuset.mems
+    echo "0" > /sys/fs/cgroup/cpuset/cpu_45_6G/cpuset.mems
+    echo "0" > /sys/fs/cgroup/cpuset/cpu_45_8G/cpuset.mems
+    echo "0" > /sys/fs/cgroup/cpuset/cpu_67_4G/cpuset.mems
+    echo "0" > /sys/fs/cgroup/cpuset/cpu_67_6G/cpuset.mems
+    echo "0" > /sys/fs/cgroup/cpuset/cpu_67_8G/cpuset.mems
+    # Specify memory limits
+    echo "4000000000" > /sys/fs/cgroup/memory/cpu_45_4G/memory.limit_in_bytes
+    echo "6000000000" > /sys/fs/cgroup/memory/cpu_45_6G/memory.limit_in_bytes
+    echo "8000000000" > /sys/fs/cgroup/memory/cpu_45_8G/memory.limit_in_bytes
+    echo "4000000000" > /sys/fs/cgroup/memory/cpu_67_4G/memory.limit_in_bytes
+    echo "6000000000" > /sys/fs/cgroup/memory/cpu_67_6G/memory.limit_in_bytes
+    echo "8000000000" > /sys/fs/cgroup/memory/cpu_67_8G/memory.limit_in_bytes
 }
 
 rootcheck () {
@@ -111,19 +136,19 @@ while getopts "ihq:w:e:a:s:d:f:z" opt; do
             ;;
         q)
             PROCESS=$OPTARG
-            CPUSET="not_cpu_234567"
+            CPUSET="cpu_01"
             TASKSET="0-1"
             set_proc
             ;;
         w)
             PROCESS=$OPTARG
-            CPUSET="not_cpu_4567"
+            CPUSET="cpu_0123"
             TASKSET="0-3"
             set_proc
             ;;
         e)
             PROCESS=$OPTARG
-            CPUSET="not_cpu_67"
+            CPUSET="cpu_012345"
             TASKSET="0-5"
             set_proc
             ;;
